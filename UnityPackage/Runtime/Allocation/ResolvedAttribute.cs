@@ -103,7 +103,7 @@ namespace osu.Framework.Allocation
 
                 var fieldGetter = getDependency(property.PropertyType, type, attribute.CanBeNull || property.IsNullable(), cacheInfo);
 
-                activators.Add((target, dc) => property.SetValue(target, fieldGetter(dc)));
+                activators.Add((target, dc) => property.SetValue(target, fieldGetter(target, dc)));
             }
 
             return (target, dc) =>
@@ -113,8 +113,8 @@ namespace osu.Framework.Allocation
             };
         }
 
-        private static Func<IReadOnlyDependencyContainer, object> getDependency(Type type, Type requestingType, bool permitNulls, CacheInfo info)
-            => dc => SourceGeneratorUtils.GetDependency(dc, type, requestingType, info.Name, info.Parent, permitNulls, true);
+        private static Func<object, IReadOnlyDependencyContainer, object> getDependency(Type type, Type requestingType, bool permitNulls, CacheInfo info)
+            => (target, dc) => SourceGeneratorUtils.GetDependency(dc, type, requestingType, info.Name, info.Parent, permitNulls, true, target);
     }
 
     public class PropertyNotWritableException : Exception

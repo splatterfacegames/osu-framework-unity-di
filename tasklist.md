@@ -50,6 +50,13 @@
 - [ ] Instantiate parent, instantiate child under parent, verify `InjectedString` is "Hello".
 - [ ] Verify dynamic instantiation: Instantiate prefab child at runtime under parent, confirm immediate injection.
 
+### 2.5 UniRx Integration (Reactive State)
+- [ ] Update `UnityPackage/package.json` to include `"com.neuecc.unirx"` as a dependency.
+- [ ] Modify `DependencyActivator` and `SourceGeneratorUtils` to identify `IReactiveProperty<T>` and `IReadOnlyReactiveProperty<T>`.
+- [ ] Implement seamless injection for `[Resolved]` UniRx properties.
+- [ ] Ensure any automatic 'rebinding' logic uses UniRx subscriptions.
+- [ ] Update `DependencyBehaviour` to hold a `CompositeDisposable` that is disposed of in `OnDestroy()`, and tie reactive property subscriptions to this lifecycle.
+
 ---
 
 ## Phase 3: Source Generator Integration

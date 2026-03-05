@@ -1,4 +1,5 @@
 using UnityEngine;
+using UniRx;
 using osu.Framework.Allocation;
 
 namespace OsuFramework.Unity.Allocation
@@ -7,8 +8,10 @@ namespace OsuFramework.Unity.Allocation
     /// Base class for any MonoBehaviour that needs to consume dependencies.
     /// It automatically resolves dependencies on Awake().
     /// </summary>
-    public class DependencyBehaviour : MonoBehaviour, IDependencyInjectionCandidate
+    public class DependencyBehaviour : MonoBehaviour, IDependencyInjectionCandidate, IHasDependencyDisposable
     {
+        public CompositeDisposable DependenciesDisposable { get; } = new CompositeDisposable();
+
         protected virtual void Awake()
         {
             // Find the nearest dependency provider in the parent hierarchy
@@ -21,8 +24,7 @@ namespace OsuFramework.Unity.Allocation
 
         protected virtual void OnDestroy()
         {
-            // Clean up any potential static references or delegates if needed,
-            // though standard Unity object destruction usually suffices for basic behaviours.
+            DependenciesDisposable.Dispose();
         }
     }
 }

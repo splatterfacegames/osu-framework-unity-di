@@ -52,6 +52,11 @@ Since we cannot control when Unity instantiates a `MonoBehaviour`, we must hook 
 - **`Awake()`:** The adapter will trigger the dependency resolution process. It will look up the `Transform.parent` chain, build the local `DependencyContainer`, inject `[Resolved]` fields, and invoke the `[BackgroundDependencyLoader]` method.
 - **`OnDestroy()`:** The adapter will clean up local caches to prevent memory leaks, mirroring how `Drawable` disposal works.
 
+### 3.4 UniRx Integration
+- The package replaces `osu.Framework.Bindables` entirely with UniRx.
+- `DependencyActivator` will natively support `IReactiveProperty<T>` and `IReadOnlyReactiveProperty<T>` for dependency injection.
+- Reactive subscriptions created during DI resolution should be managed and disposed of in `MonoBehaviour.OnDestroy` using a `CompositeDisposable`.
+
 ---
 
 ## 4. Technical Integration (Unity specifics)
@@ -70,7 +75,7 @@ When calling `Instantiate(prefab, parent)`, Unity triggers `Awake` immediately o
 ## 5. Out of Scope
 To ensure focus and maintainability, the following `osu!framework` systems are explicitly **NOT** being ported:
 1. **The `Drawable` UI and Rendering Pipeline:** Unity has its own rendering pipelines and UI systems.
-2. **`Bindable<T>` (Reactive State):** Unity has UniRx and native UI Toolkit bindings.
+2. **`Bindable<T>` (Reactive State):** We are entirely replacing osu!framework's `Bindable<T>` system with UniRx (`ReactiveProperty<T>`).
 3. **Input and Audio Systems:** Unity has the New Input System and its own Audio pipeline.
 4. **`VisualTests` / TestBrowser:** While valuable, this is outside the scope of a pure DI package and would require massive rendering porting.
 

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using osu.Framework.Allocation;
 using OsuFramework.Unity.Allocation;
+using UniRx;
 
 namespace OsuFramework.Unity.Allocation.Tests
 {
@@ -16,6 +17,9 @@ namespace OsuFramework.Unity.Allocation.Tests
             
             [Cached]
             private int myInt = 42;
+
+            [Cached]
+            public IReactiveProperty<string> ReactiveString { get; private set; } = new ReactiveProperty<string>("Initial");
         }
 
         private class ChildBehaviour : DependencyBehaviour
@@ -25,6 +29,9 @@ namespace OsuFramework.Unity.Allocation.Tests
             
             [Resolved]
             public int InjectedInt { get; private set; }
+
+            [Resolved]
+            public IReactiveProperty<string> InjectedReactiveString { get; private set; }
 
             public bool LoaderCalled { get; private set; }
 
@@ -50,6 +57,17 @@ namespace OsuFramework.Unity.Allocation.Tests
             Assert.AreEqual("Hello", child.InjectedString);
             Assert.AreEqual(42, child.InjectedInt);
             Assert.IsTrue(child.LoaderCalled);
+            Assert.AreEqual("Initial", child.InjectedReactiveString.Value);
+
+            // Verify two-way binding of UniRx reactive property
+            child.InjectedReactiveString.Value = "ChangedByChild";
+            Assert.AreEqual("ChangedByChild", parent.ReactiveString.Value);
+
+            parent.ReactiveString.Value = "ChangedByParent";
+            Assert.AreEqual("ChangedByParent", child.InjectedReactiveString.Value);
+
+            // Verify that the child holds onto the subscriptions in its CompositeDisposable
+            Assert.IsTrue(child.DependenciesDisposable.Count > 0);
 
             Object.DestroyImmediate(parentGo);
         }
@@ -73,6 +91,7 @@ namespace OsuFramework.Unity.Allocation.Tests
             Assert.AreEqual("Hello", instanceChild.InjectedString);
             Assert.AreEqual(42, instanceChild.InjectedInt);
             Assert.IsTrue(instanceChild.LoaderCalled);
+            Assert.AreEqual("Initial", instanceChild.InjectedReactiveString.Value);
 
             Object.DestroyImmediate(parentGo);
             Object.DestroyImmediate(prefabGo);

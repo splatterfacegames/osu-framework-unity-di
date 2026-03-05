@@ -58,9 +58,9 @@ namespace osu.Framework.Utils
         /// <typeparam name="T">The type of the object.</typeparam>
         /// <returns>The object.</returns>
         /// <exception cref="DependencyNotRegisteredException">If the dependency is not in <paramref name="container"/>.</exception>
-        public static T GetDependency<T>(IReadOnlyDependencyContainer container, Type callerType, string? cachedName, Type? cachedParent, bool allowNulls, bool rebindBindables)
+        public static T GetDependency<T>(IReadOnlyDependencyContainer container, Type callerType, string? cachedName, Type? cachedParent, bool allowNulls, bool rebindBindables, object? target = null)
         {
-            object? val = GetDependency(container, typeof(T), callerType, cachedName, cachedParent, allowNulls, rebindBindables);
+            object? val = GetDependency(container, typeof(T), callerType, cachedName, cachedParent, allowNulls, rebindBindables, target);
 
             // `(int)(object)null` throws a NRE, so `default` is used instead.
             return val == null ? default! : (T)val;
@@ -75,15 +75,21 @@ namespace osu.Framework.Utils
         /// <param name="cachedName">The name of the object.</param>
         /// <param name="cachedParent">The parent of the object.</param>
         /// <param name="allowNulls">Whether the returned object is allowed to be <c>null</c>.</param>
-        /// <param name="rebindBindables">If the object is a <see cref="IBindable"/>, whether it should be re-bound via <see cref="IBindable.GetBoundCopy"/>.</param>
+        /// <param name="rebindBindables">Whether reactive properties should be re-bound via UniRx subscriptions.</param>
+        /// <param name="target">The target object receiving the dependency, used for lifecycle disposal.</param>
         /// <returns>The object.</returns>
         /// <exception cref="DependencyNotRegisteredException">If the dependency is not in <paramref name="container"/>.</exception>
-        public static object? GetDependency(IReadOnlyDependencyContainer container, Type type, Type callerType, string? cachedName, Type? cachedParent, bool allowNulls, bool rebindBindables)
+        public static object? GetDependency(IReadOnlyDependencyContainer container, Type type, Type callerType, string? cachedName, Type? cachedParent, bool allowNulls, bool rebindBindables, object? target = null)
         {
             object? val = container.Get(type, new CacheInfo(cachedName, cachedParent));
 
             if (val == null && !allowNulls)
                 throw new DependencyNotRegisteredException(callerType, type);
+
+            if (rebindBindables && target != null && OsuFramework.Unity.Allocation.UniRxDependencyUtils.IsReactiveProperty(type, out Type innerType, out bool isReadOnly))
+            {
+                return OsuFramework.Unity.Allocation.UniRxDependencyUtils.CreateBoundCopy(val, type, innerType, isReadOnly, target);
+            }
 
             return val;
         }
