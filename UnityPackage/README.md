@@ -1,71 +1,106 @@
 # osu!framework DI for Unity
 
-This is a port of the Dependency Injection system from [osu!framework](https://github.com/ppy/osu-framework) to Unity. It combines the hierarchy-aware workflow of Zenject with the performance of source-generated DI.
+This package is a port of the Dependency Injection (DI) system from [osu!framework](https://github.com/ppy/osu-framework) to Unity. It provides an attribute-based workflow that maps naturally to the Unity `Transform` hierarchy while maintaining zero-allocation performance via C# Source Generators.
+
+## The Core Concept
+
+In Unity, Dependency Injection usually falls into two camps: reflection-based containers (Zenject) which are flexible but slow, or constructor-based containers (VContainer) which are fast but clash with `MonoBehaviour`.
+
+This framework uses a **hierarchy-walking** approach. Dependencies are provided by a parent and consumed by children. Because resolution happens during `Awake`, it works natively with `Object.Instantiate` without requiring custom wrappers or manual injection calls.
 
 ## Key Features
 
-- **Source Generated:** Uses Roslyn Source Generators to resolve dependencies at compile-time. No runtime reflection. No GC allocations during injection.
-- **Hierarchy-Aware:** Dependencies flow through the Unity `Transform` hierarchy. Child objects automatically inherit dependencies from their parents.
-- **Native Instantiation:** Works with standard `Object.Instantiate`. Prefabs resolve dependencies during `Awake` by walking up the transform tree.
-- **UniRx Integration:** Native support for `IReactiveProperty<T>`. Rebound properties are automatically disposed of in `OnDestroy`.
-- **Performance:** Optimized for real-time applications where frame-pacing is critical.
+- **Source Generated:** A Roslyn Source Generator analyzes your classes at compile-time and generates optimized injection code. This eliminates runtime reflection and GC allocations during dependency resolution.
+- **Hierarchy-Aware:** Scoping is defined by your scene's `Transform` structure. Child objects automatically look up the tree to find the nearest provider for a requested type.
+- **UniRx Integration:** Native support for reactive state. `[Resolved]` properties can be `IReactiveProperty<T>`, which are automatically rebound and disposed of when the object is destroyed.
+- **Async Friendly:** Inherits the `[BackgroundDependencyLoader]` pattern, allowing for safe, multi-threaded initialization.
 
-## Comparison
+## Performance Comparison
 
 | Feature | Zenject | VContainer | **osu! DI** |
 | :--- | :---: | :---: | :---: |
-| **Performance** | Reflection-heavy | Source Generated | **Source Generated** |
-| **Workflow** | Hierarchy/Attribute | Constructor | **Hierarchy/Attribute** |
-| **Allocation** | High | Low | **Zero (at runtime)** |
-| **Prefab Support** | Manual Wrapper | Manual Wrapper | **Native** |
+| **Resolution Type** | Runtime Reflection | Source Generated | **Source Generated** |
+| **Injection Style** | Attribute / Method | Constructor | **Attribute / Method** |
+| **GC Allocations** | High | Minimal | **Zero (at runtime)** |
+| **Hierarchy Aware** | Yes | No | **Yes** |
+| **Native Instantiate** | No (requires wrapper) | No (requires wrapper) | **Yes** |
 
 ## Installation
 
-Requires **Unity 2021.3+**.
+### Prerequisites
+- **Unity 2021.3+**
+- [UniRx](https://github.com/neuecc/UniRx) (Required for reactive properties)
 
-1. Install [UniRx](https://github.com/neuecc/UniRx) in your project.
-2. In the Unity Package Manager, add package from git URL:
-   `https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
+### Package Manager
+Add the following Git URL in the Unity Package Manager:
+`https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
 
-## Usage
+---
 
-### Providing Dependencies
+## Usage Guide
 
-Inherit from `DependencyNodeBehaviour` and use the `[Cached]` attribute.
+### 1. Providing Dependencies
+Inherit from `DependencyNodeBehaviour` to provide dependencies to children. Use the `[Cached]` attribute on fields or properties.
 
 ```csharp
+// Note: Classes using DI must be 'partial' for the Source Generator
 public partial class GameController : DependencyNodeBehaviour
 {
     [Cached]
     private string version = "1.0.0";
 
     [Cached]
-    public IReactiveProperty<int> Score { get; } = new ReactiveProperty<int>();
+    public IReactiveProperty<int> GlobalScore { get; } = new ReactiveProperty<int>(0);
 }
 ```
 
-### Consuming Dependencies
-
-Inherit from `DependencyBehaviour` and use `[Resolved]` or `[BackgroundDependencyLoader]`.
+### 2. Consuming Dependencies
+Inherit from `DependencyBehaviour` and use `[Resolved]` for property injection, or `[BackgroundDependencyLoader]` for method injection.
 
 ```csharp
 public partial class ScoreDisplay : DependencyBehaviour
 {
+    // Resolved properties must be private or protected with a setter
     [Resolved]
-    public IReadOnlyReactiveProperty<int> Score { get; private set; }
+    protected IReadOnlyReactiveProperty<int> Score { get; private set; }
 
+    // Method injection: parameters are resolved from the hierarchy
     [BackgroundDependencyLoader]
     private void load(string version)
     {
-        Debug.Log($"Version: {version}");
-        Score.Subscribe(v => UpdateUI(v)).AddTo(DependenciesDisposable);
+        Debug.Log($"Initialized version: {version}");
+        
+        // Use 'DependenciesDisposable' to track subscriptions for automatic cleanup
+        Score.Subscribe(v => Debug.Log($"Score: {v}")).AddTo(DependenciesDisposable);
     }
 }
 ```
 
+### 3. Hierarchy Overrides
+Dependencies are resolved by walking up the tree. You can override a dependency at any level by caching a new value of the same type in a child `DependencyNodeBehaviour`.
+
+```csharp
+public partial class SubMenu : DependencyNodeBehaviour
+{
+    // This string will be provided to all children of SubMenu, 
+    // overriding any string cached by parent nodes.
+    [Cached]
+    private string localContext = "SubMenuContext";
+}
+```
+
+## How it Works
+
+1. **Source Generation:** At compile-time, the generator creates a partial class for your behaviour that implements `ISourceGeneratedDependencyActivator`.
+2. **Awake Hook:** `DependencyBehaviour.Awake` is called.
+3. **Hierarchy Walk:** It calls `transform.GetParentNode()`, walking up `transform.parent` until it finds an `IDependencyNode`.
+4. **Resolution:** The generated code fetches the required types from the parent's `DependencyContainer` and assigns them to your fields.
+5. **UniRx Rebinding:** If the type is an `IReactiveProperty`, the system creates a two-way bound copy and adds it to a `CompositeDisposable`, which is cleared in `OnDestroy`.
+
 ## Attribution & License
 
-Licensed under **MIT**.
+Licensed under the **MIT License**.
 
-Based on source code from [osu!framework](https://github.com/ppy/osu-framework) by **ppy Pty Ltd**.
-Copyright (c) 2024 ppy Pty Ltd <contact@ppy.sh>. See [LICENSE](./LICENSE) for details.
+This project is a port of the `osu.Framework.Allocation` system.
+Original architecture and source generation by **ppy Pty Ltd**.
+Copyright (c) 2024 ppy Pty Ltd <contact@ppy.sh>. See [LICENSE](./LICENSE) for full details.
