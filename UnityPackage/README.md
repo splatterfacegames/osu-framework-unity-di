@@ -29,11 +29,12 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 
 ### Prerequisites
 - **Unity 2021.3+**
-- [R3](https://github.com/neuecc/R3) (Required for reactive properties)
 
 ### Package Manager
 Add the following Git URL in the Unity Package Manager:
 `https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
+
+*Note: This package automatically attempts to pull [R3](https://github.com/Cysharp/R3) as a dependency. If your Unity version does not support git dependencies in `package.json`, you may need to add R3 manually to your project's `manifest.json`.*
 
 ---
 
