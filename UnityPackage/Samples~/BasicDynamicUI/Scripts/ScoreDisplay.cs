@@ -1,5 +1,5 @@
 using UnityEngine;
-using UniRx;
+using R3;
 using osu.Framework.Allocation;
 using OsuFramework.Unity.Allocation;
 
@@ -11,7 +11,7 @@ namespace OsuFramework.Unity.Allocation.Samples
     public partial class ScoreDisplay : DependencyBehaviour
     {
         [Resolved]
-        private IReactiveProperty<int> globalScore { get; set; }
+        private ReactiveProperty<int> globalScore { get; set; }
 
         [BackgroundDependencyLoader]
         private void load()

@@ -1,5 +1,6 @@
 using UnityEngine;
-using UniRx;
+using System;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 
 namespace OsuFramework.Unity.Allocation
@@ -10,7 +11,7 @@ namespace OsuFramework.Unity.Allocation
     /// </summary>
     public partial class DependencyBehaviour : MonoBehaviour, IDependencyInjectionCandidate, IHasDependencyDisposable
     {
-        public CompositeDisposable DependenciesDisposable { get; } = new CompositeDisposable();
+        public List<IDisposable> DependenciesDisposable { get; } = new List<IDisposable>();
 
         protected virtual void Awake()
         {
@@ -24,7 +25,11 @@ namespace OsuFramework.Unity.Allocation
 
         protected virtual void OnDestroy()
         {
-            DependenciesDisposable.Dispose();
+            foreach (var d in DependenciesDisposable)
+            {
+                d?.Dispose();
+            }
+            DependenciesDisposable.Clear();
         }
     }
 }

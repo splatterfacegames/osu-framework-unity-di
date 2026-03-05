@@ -2,7 +2,7 @@
     "name": "OsuFramework.Unity.Allocation",
     "rootNamespace": "osu.Framework",
     "references": [
-        "UniRx"
+        "R3.Unity"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

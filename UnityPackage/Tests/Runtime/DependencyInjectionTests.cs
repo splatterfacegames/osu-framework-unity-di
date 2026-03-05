@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using osu.Framework.Allocation;
 using OsuFramework.Unity.Allocation;
-using UniRx;
+using R3;
 
 namespace OsuFramework.Unity.Allocation.Tests
 {
@@ -19,7 +19,7 @@ namespace OsuFramework.Unity.Allocation.Tests
             private int myInt = 42;
 
             [Cached]
-            public IReactiveProperty<string> ReactiveString { get; private set; } = new ReactiveProperty<string>("Initial");
+            public ReactiveProperty<string> ReactiveString { get; private set; } = new ReactiveProperty<string>("Initial");
         }
 
         private partial class ChildBehaviour : DependencyBehaviour
@@ -31,7 +31,7 @@ namespace OsuFramework.Unity.Allocation.Tests
             public int InjectedInt { get; private set; }
 
             [Resolved]
-            public IReactiveProperty<string> InjectedReactiveString { get; private set; }
+            public ReactiveProperty<string> InjectedReactiveString { get; private set; }
 
             public bool LoaderCalled { get; private set; }
 
@@ -59,7 +59,7 @@ namespace OsuFramework.Unity.Allocation.Tests
             Assert.IsTrue(child.LoaderCalled);
             Assert.AreEqual("Initial", child.InjectedReactiveString.Value);
 
-            // Verify two-way binding of UniRx reactive property
+            // Verify two-way binding of R3 reactive property
             child.InjectedReactiveString.Value = "ChangedByChild";
             Assert.AreEqual("ChangedByChild", parent.ReactiveString.Value);
 

@@ -12,7 +12,7 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 
 - **Source Generated:** A Roslyn Source Generator analyzes your classes at compile-time and generates optimized injection code. This eliminates runtime reflection and GC allocations during dependency resolution.
 - **Hierarchy-Aware:** Scoping is defined by your scene's `Transform` structure. Child objects automatically look up the tree to find the nearest provider for a requested type.
-- **UniRx Integration:** Native support for reactive state. `[Resolved]` properties can be `IReactiveProperty<T>`, which are automatically rebound and disposed of when the object is destroyed.
+- **R3 Integration:** Native support for reactive state. `[Resolved]` properties can be `ReactiveProperty<T>`, which are automatically rebound and disposed of when the object is destroyed.
 - **Async Friendly:** Inherits the `[BackgroundDependencyLoader]` pattern, allowing for safe, multi-threaded initialization.
 
 ## Performance Comparison
@@ -29,7 +29,7 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 
 ### Prerequisites
 - **Unity 2021.3+**
-- [UniRx](https://github.com/neuecc/UniRx) (Required for reactive properties)
+- [R3](https://github.com/neuecc/R3) (Required for reactive properties)
 
 ### Package Manager
 Add the following Git URL in the Unity Package Manager:
@@ -50,7 +50,7 @@ public partial class GameController : DependencyNodeBehaviour
     private string version = "1.0.0";
 
     [Cached]
-    public IReactiveProperty<int> GlobalScore { get; } = new ReactiveProperty<int>(0);
+    public ReactiveProperty<int> GlobalScore { get; } = new ReactiveProperty<int>(0);
 }
 ```
 
@@ -62,7 +62,7 @@ public partial class ScoreDisplay : DependencyBehaviour
 {
     // Resolved properties must be private or protected with a setter
     [Resolved]
-    protected IReadOnlyReactiveProperty<int> Score { get; private set; }
+    protected ReadOnlyReactiveProperty<int> Score { get; private set; }
 
     // Method injection: parameters are resolved from the hierarchy
     [BackgroundDependencyLoader]
@@ -95,7 +95,7 @@ public partial class SubMenu : DependencyNodeBehaviour
 2. **Awake Hook:** `DependencyBehaviour.Awake` is called.
 3. **Hierarchy Walk:** It calls `transform.GetParentNode()`, walking up `transform.parent` until it finds an `IDependencyNode`.
 4. **Resolution:** The generated code fetches the required types from the parent's `DependencyContainer` and assigns them to your fields.
-5. **UniRx Rebinding:** If the type is an `IReactiveProperty`, the system creates a two-way bound copy and adds it to a `CompositeDisposable`, which is cleared in `OnDestroy`.
+5. **R3 Rebinding:** If the type is an `ReactiveProperty`, the system creates a two-way bound copy and adds it to a `CompositeDisposable`, which is cleared in `OnDestroy`.
 
 ## Attribution & License
 

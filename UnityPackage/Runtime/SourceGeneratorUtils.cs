@@ -75,7 +75,7 @@ namespace osu.Framework.Utils
         /// <param name="cachedName">The name of the object.</param>
         /// <param name="cachedParent">The parent of the object.</param>
         /// <param name="allowNulls">Whether the returned object is allowed to be <c>null</c>.</param>
-        /// <param name="rebindBindables">Whether reactive properties should be re-bound via UniRx subscriptions.</param>
+        /// <param name="rebindBindables">Whether reactive properties should be re-bound via R3 subscriptions.</param>
         /// <param name="target">The target object receiving the dependency, used for lifecycle disposal.</param>
         /// <returns>The object.</returns>
         /// <exception cref="DependencyNotRegisteredException">If the dependency is not in <paramref name="container"/>.</exception>
@@ -86,9 +86,9 @@ namespace osu.Framework.Utils
             if (val == null && !allowNulls)
                 throw new DependencyNotRegisteredException(callerType, type);
 
-            if (rebindBindables && target != null && OsuFramework.Unity.Allocation.UniRxDependencyUtils.IsReactiveProperty(type, out Type innerType, out bool isReadOnly))
+            if (rebindBindables && target != null && OsuFramework.Unity.Allocation.R3DependencyUtils.IsReactiveProperty(type, out Type innerType, out bool isReadOnly))
             {
-                return OsuFramework.Unity.Allocation.UniRxDependencyUtils.CreateBoundCopy(val, type, innerType, isReadOnly, target);
+                return OsuFramework.Unity.Allocation.R3DependencyUtils.CreateBoundCopy(val, type, innerType, isReadOnly, target);
             }
 
             return val;

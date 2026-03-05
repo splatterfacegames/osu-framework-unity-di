@@ -1,5 +1,5 @@
 using UnityEngine;
-using UniRx;
+using R3;
 using osu.Framework.Allocation;
 using OsuFramework.Unity.Allocation;
 
@@ -11,7 +11,7 @@ namespace OsuFramework.Unity.Allocation.Samples
     public partial class GameRoot : DependencyNodeBehaviour
     {
         [Cached]
-        public IReactiveProperty<int> GlobalScore { get; private set; } = new ReactiveProperty<int>(0);
+        public ReactiveProperty<int> GlobalScore { get; private set; } = new ReactiveProperty<int>(0);
 
         public GameObject scoreDisplayPrefab;
 

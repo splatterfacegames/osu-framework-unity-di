@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using osu.Framework.Allocation;
 using OsuFramework.Unity.Allocation;
-using UniRx;
+using R3;
 
 namespace OsuFramework.Unity.Allocation.Tests
 {
@@ -45,7 +45,7 @@ namespace OsuFramework.Unity.Allocation.Tests
 
             // Expose only the read-only interface to children
             [Cached]
-            public IReadOnlyReactiveProperty<float> Health => internalHealth;
+            public ReadOnlyReactiveProperty<float> Health => internalHealth;
 
             public void TakeDamage(float amount) => internalHealth.Value -= amount;
         }
@@ -53,7 +53,7 @@ namespace OsuFramework.Unity.Allocation.Tests
         private partial class ReactiveChild : DependencyBehaviour
         {
             [Resolved]
-            public IReadOnlyReactiveProperty<float> PlayerHealth { get; private set; }
+            public ReadOnlyReactiveProperty<float> PlayerHealth { get; private set; }
         }
 
         [Test]

@@ -8,7 +8,7 @@
   "samples": [
     {
       "displayName": "Basic Dynamic UI",
-      "description": "An example demonstrating dynamic instantiation and [Cached]/[Resolved] UniRx property injection.",
+      "description": "An example demonstrating dynamic instantiation and [Cached]/[Resolved] R3 property injection.",
       "path": "Samples~/BasicDynamicUI"
     }
   ]

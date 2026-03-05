@@ -1,6 +1,6 @@
 # Basic Dynamic UI Sample
 
-This sample demonstrates how to cache a global UniRx reactive property (`GlobalScore`) on a root object, and dynamically instantiate a prefab (`ScoreDisplay`) that automatically resolves the dependency and subscribes to it.
+This sample demonstrates how to cache a global R3 reactive property (`GlobalScore`) on a root object, and dynamically instantiate a prefab (`ScoreDisplay`) that automatically resolves the dependency and subscribes to it.
 
 ## How to set up the scene:
 1. Create a new Scene.
