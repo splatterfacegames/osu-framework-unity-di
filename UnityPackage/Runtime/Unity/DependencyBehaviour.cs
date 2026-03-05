@@ -8,7 +8,7 @@ namespace OsuFramework.Unity.Allocation
     /// Base class for any MonoBehaviour that needs to consume dependencies.
     /// It automatically resolves dependencies on Awake().
     /// </summary>
-    public class DependencyBehaviour : MonoBehaviour, IDependencyInjectionCandidate, IHasDependencyDisposable
+    public partial class DependencyBehaviour : MonoBehaviour, IDependencyInjectionCandidate, IHasDependencyDisposable
     {
         public CompositeDisposable DependenciesDisposable { get; } = new CompositeDisposable();
 

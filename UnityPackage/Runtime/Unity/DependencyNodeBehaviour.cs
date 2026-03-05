@@ -6,7 +6,7 @@ namespace OsuFramework.Unity.Allocation
     /// <summary>
     /// A behaviour that both consumes dependencies from its parent, and provides new [Cached] dependencies to its children.
     /// </summary>
-    public class DependencyNodeBehaviour : DependencyBehaviour, IDependencyNode
+    public partial class DependencyNodeBehaviour : DependencyBehaviour, IDependencyNode
     {
         private IReadOnlyDependencyContainer dependencies;
         

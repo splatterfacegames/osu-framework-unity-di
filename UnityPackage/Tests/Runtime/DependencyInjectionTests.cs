@@ -10,7 +10,7 @@ namespace OsuFramework.Unity.Allocation.Tests
 {
     public class DependencyInjectionTests
     {
-        private class ParentBehaviour : DependencyNodeBehaviour
+        private partial class ParentBehaviour : DependencyNodeBehaviour
         {
             [Cached]
             private string myString = "Hello";
@@ -22,7 +22,7 @@ namespace OsuFramework.Unity.Allocation.Tests
             public IReactiveProperty<string> ReactiveString { get; private set; } = new ReactiveProperty<string>("Initial");
         }
 
-        private class ChildBehaviour : DependencyBehaviour
+        private partial class ChildBehaviour : DependencyBehaviour
         {
             [Resolved]
             public string InjectedString { get; private set; }
