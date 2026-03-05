@@ -17,6 +17,18 @@ It provides the intuitive, hierarchy-aware attribute injection of Extenject, pow
 - **Frictionless Dynamic Instantiation:** Because the DI system resolves through `transform.parent` during Unity's native `Awake()` phase, you can call `Instantiate(prefab, parent)` natively. The prefab will instantly and cheaply resolve all dependencies without needing a heavy wrapper like `DiContainer.InstantiatePrefab()`.
 - **First-Class UniRx Support:** The internal reactive `Bindable` system from osu!framework has been entirely replaced with native [UniRx](https://github.com/neuecc/UniRx) support (`IReactiveProperty<T>`).
 
+## Why osu!framework's DI is the Best
+
+The [osu!framework](https://github.com/ppy/osu-framework) was built from the ground up to power **osu!**, a rhythm game where performance, frame-pacing, and zero-allocation execution are non-negotiable. 
+
+To achieve this, ppy Pty Ltd engineered a Dependency Injection system that is a masterclass in C# architecture:
+- **Battle-Tested at 1000+ FPS:** Unlike generic enterprise DI containers that assume standard web requests or UI applications, osu!framework's DI is built specifically for real-time applications where every microsecond matters. It is proven to run smoothly in an environment that demands 1000+ frames per second without stuttering.
+- **Source-Generated Zero-Allocation:** ppy developed a custom Roslyn Source Generator that analyzes `[Cached]`, `[Resolved]`, and `[BackgroundDependencyLoader]` attributes at compile-time. It emits highly optimized, reflection-free proxy code that injects dependencies with **0 bytes of GC allocation**, ensuring the Garbage Collector never spikes during gameplay.
+- **Organic Hierarchy Scoping:** Instead of relying on rigid, global containers or complex sub-containers defined in code, the DI organically flows through the visual hierarchy (the `Drawable` tree in osu!, mapped to the `Transform` tree in Unity). This makes scoping incredibly intuitive—a child simply inherits dependencies from its parents, mimicking real-world object relationships perfectly.
+- **Robust Two-Stage Initialization:** The system elegantly separates object construction from dependency resolution. The `[BackgroundDependencyLoader]` pattern allows objects to safely prepare their state on background threads before being pushed to the main thread, making async loading a breeze.
+
+By porting this exact architecture to Unity, we bring enterprise-grade, rhythm-game-proven performance to your `MonoBehaviour`s.
+
 ## Installation
 
 This package requires **Unity 2021.3+** (.NET Standard 2.1).
