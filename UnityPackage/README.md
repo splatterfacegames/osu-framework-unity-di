@@ -27,14 +27,21 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 
 ## Installation
 
-### Prerequisites
-- **Unity 2021.3+**
+### 1. Install R3 (Prerequisite)
+This package requires [R3](https://github.com/Cysharp/R3). The recommended way to install it is via **OpenUPM**:
 
-### Package Manager
-Add the following Git URL in the Unity Package Manager:
+1. Open `Edit -> Project Settings -> Package Manager`.
+2. Add a new Scoped Registry:
+   - **Name:** OpenUPM
+   - **URL:** `https://package.openupm.com`
+   - **Scope(s):** `com.cysharp.r3`
+3. Open the Package Manager and install `R3`.
+
+*(Alternatively, you can install R3 via Git URL: `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`)*
+
+### 2. Install this Package
+In the Unity Package Manager, click the `+` icon and select `Add package from git URL...`:
 `https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
-
-*Note: This package automatically attempts to pull [R3](https://github.com/Cysharp/R3) as a dependency. If your Unity version does not support git dependencies in `package.json`, you may need to add R3 manually to your project's `manifest.json`.*
 
 ---
 
