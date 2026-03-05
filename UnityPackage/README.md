@@ -1,36 +1,40 @@
 # osu!framework DI for Unity
 
-Welcome to the ultimate Dependency Injection (DI) framework for Unity, ported directly from the highly performant [osu!framework](https://github.com/ppy/osu-framework).
+*The ultimate zero-allocation, hierarchy-aware Dependency Injection framework for Unity.*
 
-This package provides the "Holy Grail" of DI:
-- **Zero-Allocation & Lightning Fast:** Uses C# Source Generators (Roslyn Analyzers) to resolve dependencies at compile-time, completely bypassing the massive runtime overhead and GC allocations of reflection.
-- **Hierarchy-Aware Scoping:** Scopes and provides dependencies organically through the Unity `Transform` hierarchy (like Extenject/Zenject), rather than forcing rigid constructor injection (like VContainer).
-- **Frictionless Dynamic Instantiation:** Because it resolves via the `Transform` parent chain during `Awake()`, you can `Instantiate()` prefabs natively without needing heavy `DiContainer.InstantiatePrefab()` wrappers.
-- **UniRx Reactive State:** Built-in seamless support for `IReactiveProperty<T>`.
+**osu-framework-unity-di** is a direct port of the battle-tested dependency injection system from [ppy/osu-framework](https://github.com/ppy/osu-framework) into the Unity ecosystem. It provides the intuitive, hierarchy-aware workflow of **Extenject (Zenject)**, powered entirely by the zero-allocation C# Source Generators of **VContainer**.
 
-## Why choose this over...
+---
 
-### Extenject / Zenject?
-Extenject relies heavily on `System.Reflection` at runtime, causing massive frame drops when instantiating complex prefabs. It also generates significant garbage. **This package uses compile-time Source Generators, resulting in zero reflection and 0 bytes of GC allocation during resolution.**
+## ✨ Why choose this framework?
 
-### VContainer?
-VContainer achieves high performance by enforcing rigid Constructor Injection. However, Unity `MonoBehaviour`s do not support constructors. VContainer forces you to split your logic into POCOs or use awkward `[Inject]` property workarounds that break the natural flow of dynamic prefab instantiation. **This package embraces `MonoBehaviour` and the `Transform` hierarchy organically.**
+Unity developers traditionally face a dilemma when choosing a DI framework:
 
-## Why osu!framework's DI is the Best
+- **Extenject / Zenject:** Offers an incredible developer experience with `[Inject]` attributes and natural scoping through the Unity `Transform` hierarchy. *However*, its reliance on `System.Reflection` at runtime causes massive CPU spikes and GC allocations when instantiating complex prefabs.
+- **VContainer:** Achieves lightning-fast performance using C# Source Generators. *However*, it enforces rigid Constructor Injection which fundamentally clashes with the `MonoBehaviour` lifecycle and makes dynamic prefab instantiation cumbersome.
 
-The [osu!framework](https://github.com/ppy/osu-framework) was built from the ground up to power **osu!**, a rhythm game where performance, frame-pacing, and zero-allocation execution are non-negotiable. 
+**This package solves both problems.** 
 
-To achieve this, ppy Pty Ltd engineered a Dependency Injection system that is a masterclass in C# architecture:
-- **Battle-Tested at 1000+ FPS:** Unlike generic enterprise DI containers that assume standard web requests or UI applications, osu!framework's DI is built specifically for real-time applications where every microsecond matters. It is proven to run smoothly in an environment that demands 1000+ frames per second without stuttering.
-- **Source-Generated Zero-Allocation:** ppy developed a custom Roslyn Source Generator that analyzes `[Cached]`, `[Resolved]`, and `[BackgroundDependencyLoader]` attributes at compile-time. It emits highly optimized, reflection-free proxy code that injects dependencies with **0 bytes of GC allocation**, ensuring the Garbage Collector never spikes during gameplay.
-- **Organic Hierarchy Scoping:** Instead of relying on rigid, global containers or complex sub-containers defined in code, the DI organically flows through the visual hierarchy (the `Drawable` tree in osu!, mapped to the `Transform` tree in Unity). This makes scoping incredibly intuitive—a child simply inherits dependencies from its parents, mimicking real-world object relationships perfectly.
-- **Robust Two-Stage Initialization:** The system elegantly separates object construction from dependency resolution. The `[BackgroundDependencyLoader]` pattern allows objects to safely prepare their state on background threads before being pushed to the main thread, making async loading a breeze.
+It was originally engineered by ppy Pty Ltd to power **osu!**, a rhythm game where precise frame-pacing and zero-allocation execution are non-negotiable. By porting this exact architecture to Unity, we bring enterprise-grade, rhythm-game-proven performance to your `MonoBehaviour`s.
 
-By porting this exact architecture to Unity, we bring enterprise-grade, rhythm-game-proven performance to your `MonoBehaviour`s.
+### 🚀 Core Features
 
-## Installation
+- **Battle-Tested at 1000+ FPS:** Built for real-time applications where every microsecond matters. It is proven to run smoothly without stuttering in a high-performance environment.
+- **Source-Generated Zero-Allocation:** A custom Roslyn Source Generator analyzes `[Cached]`, `[Resolved]`, and `[BackgroundDependencyLoader]` attributes at compile-time. It emits highly optimized, reflection-free proxy code that injects dependencies with **0 bytes of GC allocation**, ensuring the Garbage Collector never spikes during gameplay.
+- **Organic Hierarchy Scoping:** Dependencies flow organically down the Unity `Transform` tree. A parent `DependencyNode` automatically provides dependencies to any nested child, mimicking real-world object relationships perfectly without relying on rigid global containers.
+- **Frictionless Dynamic Instantiation:** Because the DI system resolves through `transform.parent` during Unity's native `Awake()` phase, you can call `Instantiate(prefab, parent)` natively. The prefab will instantly resolve all dependencies without needing a heavy wrapper like `DiContainer.InstantiatePrefab()`.
+- **First-Class UniRx Support:** The internal reactive `Bindable` system from osu!framework has been completely replaced with native [UniRx](https://github.com/neuecc/UniRx) support (`IReactiveProperty<T>`), complete with automatic lifecycle-safe subscriptions.
+- **Robust Two-Stage Initialization:** The system elegantly separates object construction from dependency resolution. The `[BackgroundDependencyLoader]` pattern allows objects to safely prepare their state before entering the active game loop.
+
+---
+
+## 📦 Installation
 
 This package requires **Unity 2021.3+** (.NET Standard 2.1).
+
+### Dependencies
+You must have UniRx installed in your Unity project before adding this package:
+- [UniRx (com.neuecc.unirx)](https://github.com/neuecc/UniRx)
 
 ### Package Manager
 1. Open the Unity Package Manager (`Window -> Package Manager`).
@@ -38,12 +42,12 @@ This package requires **Unity 2021.3+** (.NET Standard 2.1).
 3. Paste the following URL:
    `https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
 
-*(Make sure you have UniRx installed in your project as well, as it is a required dependency.)*
+---
 
-## Quick Start Guide
+## 📖 Quick Start Guide
 
 ### 1. Providing Dependencies (`[Cached]`)
-To provide dependencies to child objects, inherit from `DependencyNodeBehaviour` and mark your fields or properties with `[Cached]`.
+Attach a `DependencyNodeBehaviour` to a root GameObject. Mark the fields or properties you want to share with children using `[Cached]`.
 
 ```csharp
 using UnityEngine;
@@ -64,9 +68,7 @@ public partial class GameController : DependencyNodeBehaviour
 ```
 
 ### 2. Consuming Dependencies (`[Resolved]` & `[BackgroundDependencyLoader]`)
-To consume dependencies, inherit from `DependencyBehaviour` and place it on a GameObject that is a child of the `DependencyNodeBehaviour`. 
-
-Dependencies can be injected directly into properties using `[Resolved]`, or via an initialization method marked with `[BackgroundDependencyLoader]`.
+Attach a `DependencyBehaviour` to any child GameObject. Use `[Resolved]` for property injection, or `[BackgroundDependencyLoader]` for a DI-safe initialization method.
 
 ```csharp
 using UnityEngine;
@@ -78,7 +80,7 @@ public partial class ScoreDisplay : DependencyBehaviour
 {
     // Automatically populated via the parent's [Cached] fields
     [Resolved]
-    public IReactiveProperty<int> Score { get; private set; }
+    public IReadOnlyReactiveProperty<int> Score { get; private set; }
 
     // Safe initialization method called automatically by the DI system during Awake()
     [BackgroundDependencyLoader]
@@ -102,3 +104,14 @@ Because dependencies are resolved via the `Transform` hierarchy during `Awake()`
 // The DI system will walk up the chain, find the DependencyNode, and inject everything instantly.
 Instantiate(scoreDisplayPrefab, parentNodeTransform);
 ```
+
+---
+
+## ⚖️ Attribution & License
+
+This project is licensed under the **MIT License**.
+
+This package is heavily based on, and contains modified source code from, the [osu!framework](https://github.com/ppy/osu-framework) created by **ppy Pty Ltd**. The incredible zero-allocation source generator and core allocation architecture are their original work.
+
+Copyright (c) 2024 ppy Pty Ltd <contact@ppy.sh>. 
+See the [LICENSE](./LICENSE) file for the full text.
