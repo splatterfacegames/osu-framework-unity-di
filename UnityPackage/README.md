@@ -28,16 +28,16 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 ## Installation
 
 ### 1. Install R3 (Prerequisite)
-This package requires [R3](https://github.com/Cysharp/R3). The recommended way to install it is via **OpenUPM**:
+This package requires [R3](https://github.com/Cysharp/R3). Follow these two steps:
 
-1. Open `Edit -> Project Settings -> Package Manager`.
-2. Add a new Scoped Registry:
-   - **Name:** OpenUPM
-   - **URL:** `https://package.openupm.com`
-   - **Scope(s):** `com.cysharp.r3`
-3. Open the Package Manager and install `R3`.
+**Step A: Install R3 via NuGet**
+1. Install [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity).
+2. Open `NuGet -> Manage NuGet Packages`, search for **"R3"**, and press **Install**.
+3. *Note: If you encounter version conflict errors, go to `Edit -> Project Settings -> Player -> Other Settings` and uncheck **"Assembly Version Validation"**.*
 
-*(Alternatively, you can install R3 via Git URL: `https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`)*
+**Step B: Install R3.Unity via Git URL**
+In the Unity Package Manager, click the `+` icon, select `Add package from git URL...`, and enter:
+`https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`
 
 ### 2. Install this Package
 In the Unity Package Manager, click the `+` icon and select `Add package from git URL...`:
