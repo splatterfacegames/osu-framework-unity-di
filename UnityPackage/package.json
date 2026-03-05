@@ -1,0 +1,8 @@
+{
+  "name": "com.osuframework.unity.allocation",
+  "version": "0.1.0-preview",
+  "displayName": "osu!framework DI for Unity",
+  "description": "Zero-allocation, source-generated, attribute-based Dependency Injection for Unity, ported from osu!framework.",
+  "unity": "2021.3",
+  "dependencies": {}
+}
