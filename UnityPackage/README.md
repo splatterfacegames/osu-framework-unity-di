@@ -33,7 +33,8 @@ This package requires [R3](https://github.com/Cysharp/R3). Follow these two step
 **Step A: Install R3 via NuGet**
 1. Install [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity).
 2. Open `NuGet -> Manage NuGet Packages`, search for **"R3"**, and press **Install**.
-3. *Note: If you encounter version conflict errors, go to `Edit -> Project Settings -> Player -> Other Settings` and uncheck **"Assembly Version Validation"**.*
+3. Go to `Edit -> Project Settings -> Player -> Other Settings` and ensure **API Compatibility Level** is set to `.NET Standard 2.1`.
+4. *Note: If you encounter version conflict errors, uncheck **"Assembly Version Validation"** in the same settings window.*
 
 **Step B: Install R3.Unity via Git URL**
 In the Unity Package Manager, click the `+` icon, select `Add package from git URL...`, and enter:
