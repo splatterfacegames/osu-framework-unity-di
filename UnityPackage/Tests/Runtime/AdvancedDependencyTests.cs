@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -35,17 +36,14 @@ namespace OsuFramework.Unity.Allocation.Tests
             [Resolved]
             public int Value { get; private set; }
 
-            [Resolved(CanBeNull = true)]
+            [Resolved(Name = "optionalConfig", CanBeNull = true)]
             public string OptionalConfig { get; private set; }
         }
 
         private partial class ReadOnlyReactiveParent : DependencyNodeBehaviour
         {
+            [Cached(typeof(ReadOnlyReactiveProperty<float>))]
             private ReactiveProperty<float> internalHealth = new ReactiveProperty<float>(100f);
-
-            // Expose only the read-only interface to children
-            [Cached]
-            public ReadOnlyReactiveProperty<float> Health => internalHealth;
 
             public void TakeDamage(float amount) => internalHealth.Value -= amount;
         }
@@ -89,10 +87,8 @@ namespace OsuFramework.Unity.Allocation.Tests
             
             // Adding the behaviour will trigger Awake -> DependencyActivator.Activate
             // Since there is no parent providing the mandatory 'string' and 'int' dependencies, it should throw.
-            Assert.Throws<DependencyNotRegisteredException>(() => 
-            {
-                childGo.AddComponent<ChildBehaviour>();
-            });
+            LogAssert.Expect(LogType.Exception, new Regex("DependencyNotRegisteredException: The type AdvancedDependencyTests\\+ChildBehaviour"));
+            childGo.AddComponent<ChildBehaviour>();
 
             UnityEngine.Object.DestroyImmediate(childGo);
         }
@@ -109,11 +105,11 @@ namespace OsuFramework.Unity.Allocation.Tests
 
             // Ensure the child received the read-only property
             Assert.IsNotNull(child.PlayerHealth);
-            Assert.AreEqual(100f, child.PlayerHealth.Value);
+            Assert.AreEqual(100f, child.PlayerHealth.CurrentValue);
 
             // Ensure updates from the parent propagate to the child's read-only view
             parent.TakeDamage(25f);
-            Assert.AreEqual(75f, child.PlayerHealth.Value);
+            Assert.AreEqual(75f, child.PlayerHealth.CurrentValue);
 
             UnityEngine.Object.DestroyImmediate(parentGo);
         }
