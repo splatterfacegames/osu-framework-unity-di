@@ -92,7 +92,7 @@ After installing the package, open Unity Package Manager, select the package, an
 
 ## Validating Changes
 
-CI runs Unity package tests from a generated validation project. Local validation uses the same shape; this workspace has been validated with Unity `6000.4.6f1` using:
+Hosted CI is deferred for now. Local Unity validation is the source of truth; this workspace has been validated with Unity `6000.4.6f1` using:
 
 ```powershell
 & 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe' `
@@ -114,16 +114,14 @@ The validation project should mark both packages testable when running package t
 }
 ```
 
-## CI/CD Shape
+## Release Shape
 
-Current CI validates the package, but release publishing is still tag-based Git UPM consumption. There is no scoped-registry publish step yet.
+Release publishing is currently tag-based Git UPM consumption. There is no scoped-registry publish step yet.
 
-1. Run Unity PlayMode package tests against a generated validation project.
+1. Run Unity PlayMode package tests locally against a validation project.
 2. Release by tagging the repository.
 3. Consume packages through Git tags using `?path=/UnityPackage#tag`.
 4. Optionally add OpenUPM or private scoped-registry publishing later.
-
-The GitHub Actions workflow requires Unity activation secrets: `UNITY_LICENSE`, `UNITY_EMAIL`, and `UNITY_PASSWORD`.
 
 Treat Git path installs as the supported distribution mechanism.
 
