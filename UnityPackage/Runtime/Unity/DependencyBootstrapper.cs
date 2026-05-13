@@ -11,7 +11,7 @@ namespace OsuFramework.Unity.Allocation
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Init()
         {
-            DependencyActivator.ClearCache();
+            DependencyCache.Clear();
         }
     }
 }

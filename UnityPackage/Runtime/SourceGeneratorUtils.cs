@@ -25,7 +25,7 @@ namespace osu.Framework.Utils
         /// <exception cref="NullDependencyException">If <paramref name="obj"/> is <c>null</c>.</exception>
         public static void CacheDependency(DependencyContainer container, Type callerType, object? obj, CacheInfo info, Type? asType, string? cachedName, string? propertyName)
         {
-            bool allowValueTypes = false;
+            bool allowValueTypes = true;
 
             if (obj == null)
             {
