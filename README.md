@@ -25,24 +25,105 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 | **Hierarchy Aware** | Yes | No | **Yes** |
 | **Native Instantiate** | No (requires wrapper) | No (requires wrapper) | **Yes** |
 
-## Installation
+## Package Distribution
 
-### 1. Install R3 (Prerequisite)
-This package requires [R3](https://github.com/Cysharp/R3). Follow these two steps:
+This repository is not currently using CI/CD to build or publish UPM packages. There are no root GitHub Actions or release workflows in this checkout. The core package is a plain Unity Package Manager package stored in a subdirectory:
 
-**Step A: Install R3 via NuGet**
-1. Install [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity).
-2. Open `NuGet -> Manage NuGet Packages`, search for **"R3"**, and press **Install**.
-3. Go to `Edit -> Project Settings -> Player -> Other Settings` and ensure **API Compatibility Level** is set to `.NET Standard 2.1`.
-4. *Note: If you encounter version conflict errors, uncheck **"Assembly Version Validation"** in the same settings window.*
+- `UnityPackage/` -> `com.osuframework.unity`
 
-**Step B: Install R3.Unity via Git URL**
-In the Unity Package Manager, click the `+` icon, select `Add package from git URL...`, and enter:
-`https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity`
+That means consumers install it directly from a Git URL with a `?path=` suffix, or from a local path while developing. There is no npm/OpenUPM/scoped-registry publishing step yet.
 
-### 2. Install this Package
-In the Unity Package Manager, click the `+` icon and select `Add package from git URL...`:
-`https://github.com/YOUR_USERNAME/osu-framework-unity-di.git?path=/UnityPackage`
+### Package Names
+
+| Package | Path | Purpose |
+| :--- | :--- | :--- |
+| `com.osuframework.unity` | `UnityPackage` | Core hierarchy-aware osu!framework DI adapter for Unity. |
+
+### Git Install
+
+Use the repository URL with a package path. Replace the URL with the actual remote for your fork or upstream repo.
+
+```json
+{
+  "dependencies": {
+    "com.cysharp.r3": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
+    "com.osuframework.unity": "https://github.com/YOUR_ORG/osu-framework-unity-di.git?path=/UnityPackage"
+  }
+}
+```
+
+Pinning to a tag or commit is recommended once releases exist:
+
+```text
+https://github.com/YOUR_ORG/osu-framework-unity-di.git?path=/UnityPackage#v0.1.0-preview
+```
+
+### Local Development Install
+
+For local validation or package development, use file dependencies:
+
+```json
+{
+  "dependencies": {
+    "com.cysharp.r3": "file:B:/_validation_deps/R3/src/R3.Unity/Assets/R3.Unity",
+    "com.osuframework.unity": "file:B:/osu-framework-unity-di/UnityPackage"
+  }
+}
+```
+
+The validation project in this workspace uses that model.
+
+### R3 Prerequisite
+
+This package requires [R3](https://github.com/Cysharp/R3). The simplest UPM path is:
+
+```text
+https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity
+```
+
+If your project uses NuGetForUnity for the core `R3.dll`, keep `R3.Unity` installed through UPM and ensure the required NuGet assemblies are available to Unity. Set Unity's API Compatibility Level to `.NET Standard 2.1` if your project is not already configured that way.
+
+### Import Samples
+
+After installing the package, open Unity Package Manager, select the package, and import the listed sample:
+
+- `com.osuframework.unity`: `Basic Dynamic UI`
+
+
+## Validating Changes
+
+There is no CI job yet, so local validation is currently the source of truth. This workspace has been validated with Unity `6000.4.6f1` using:
+
+```powershell
+& 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe' `
+  -batchmode `
+  -projectPath B:\OsuDiValidation `
+  -runTests `
+  -testPlatform PlayMode `
+  -testResults B:\OsuDiValidation\Logs\screens-test-results.xml `
+  -logFile B:\OsuDiValidation\Logs\screens-tests.log
+```
+
+The validation project should mark both packages testable when running package tests:
+
+```json
+{
+  "testables": [
+    "com.osuframework.unity"
+  ]
+}
+```
+
+## Future CI/CD Shape
+
+If this becomes a published package, the likely CI/CD flow is:
+
+1. Run Unity PlayMode package tests against a validation project.
+2. Pack or release by tagging the repository.
+3. Consume packages through Git tags using `?path=/UnityPackage#tag`.
+4. Optionally publish to OpenUPM or a private scoped registry.
+
+Until that exists, do not assume package publication happens automatically. Treat Git path installs as the supported distribution mechanism.
 
 ---
 
