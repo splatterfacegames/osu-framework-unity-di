@@ -14,6 +14,7 @@ This framework uses a **hierarchy-walking** approach. Dependencies are provided 
 - **Hierarchy-Aware:** Scoping is defined by your scene's `Transform` structure. Child objects automatically look up the tree to find the nearest provider for a requested type.
 - **R3 Integration:** Native support for reactive state. `[Resolved]` properties can be `ReactiveProperty<T>`, which are automatically rebound and disposed of when the object is destroyed.
 - **Async Friendly:** Inherits the `[BackgroundDependencyLoader]` pattern, allowing for safe, multi-threaded initialization.
+- **Unity Authoring Friendly:** Dependencies are still declared in code, but the intended workflow is inspectable: providers live on parent objects, consumers declare required members, and prefab preview contexts can supply mock providers for editor validation.
 
 ## Performance Comparison
 
@@ -97,6 +98,54 @@ public partial class SubMenu : DependencyNodeBehaviour
     private string localContext = "SubMenuContext";
 }
 ```
+
+### 4. Ambient Dependencies vs Explicit Init Args
+
+Use `[Cached]` / `[Resolved]` for ambient services that belong to a hierarchy scope:
+
+- theme, audio, input, localization
+- save systems and profile services
+- reactive score, health, inventory, or settings streams
+- screen navigation and factories
+
+Use explicit initialization for required per-instance values that the caller must choose:
+
+- route arguments
+- selected item id
+- save slot
+- initial tab
+- player index
+
+Those values should be passed through a clear `Init(...)` method or an object-creation helper instead of being promoted into static state or a global service. Implement `IInitializable<T>` and use `InstantiateWithArguments` / `AddComponentWithArguments` when the value must exist before `Awake`.
+
+```csharp
+public partial class InventoryScreen : DependencyBehaviour, IInitializable<InventoryRouteArgs>
+{
+    private InventoryRouteArgs args;
+
+    public void Init(InventoryRouteArgs args)
+    {
+        this.args = args;
+    }
+
+    [Resolved]
+    private IAudioService audio { get; set; }
+}
+```
+
+The result is the same split you would expect from constructor-style Unity DI: the hierarchy supplies ambient context, while the caller supplies values that make this one instance unique.
+
+## Inspector Workflow
+
+Editor tooling should make the dependency graph visible without entering Play Mode:
+
+- selected providers show their `[Cached]` members
+- selected consumers show their `[Resolved]` members and loader parameters
+- each resolved dependency reports its source object: self, parent, ancestor, or missing
+- missing dependencies produce validation warnings
+- prefabs can be inspected under a `DependencyPreviewContext` that supplies mock providers
+
+This keeps the code-first osu!framework DI model compatible with Unity's normal scene and prefab workflow.
 
 ## How it Works
 
