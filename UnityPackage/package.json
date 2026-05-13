@@ -1,6 +1,6 @@
 {
   "name": "com.osuframework.unity",
-  "version": "0.1.0-preview",
+  "version": "0.1.0-preview.1",
   "displayName": "osu!framework DI for Unity",
   "description": "Zero-allocation, source-generated, attribute-based Dependency Injection for Unity, ported from osu!framework.",
   "unity": "2021.3",

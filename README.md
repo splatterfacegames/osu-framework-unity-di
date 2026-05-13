@@ -47,7 +47,7 @@ Use the repository URL with a package path. Replace the URL with the actual remo
 {
   "dependencies": {
     "com.cysharp.r3": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
-    "com.osuframework.unity": "https://github.com/YOUR_ORG/osu-framework-unity-di.git?path=/UnityPackage"
+    "com.osuframework.unity": "https://github.com/jethac/osu-framework-unity-di.git?path=/UnityPackage#v0.1.0-preview.1"
   }
 }
 ```
@@ -55,7 +55,7 @@ Use the repository URL with a package path. Replace the URL with the actual remo
 Pinning to a tag or commit is recommended once releases exist:
 
 ```text
-https://github.com/YOUR_ORG/osu-framework-unity-di.git?path=/UnityPackage#v0.1.0-preview
+https://github.com/jethac/osu-framework-unity-di.git?path=/UnityPackage#v0.1.0-preview.1
 ```
 
 ### Local Development Install
@@ -92,7 +92,7 @@ After installing the package, open Unity Package Manager, select the package, an
 
 ## Validating Changes
 
-There is no CI job yet, so local validation is currently the source of truth. This workspace has been validated with Unity `6000.4.6f1` using:
+CI runs Unity package tests from a generated validation project. Local validation uses the same shape; this workspace has been validated with Unity `6000.4.6f1` using:
 
 ```powershell
 & 'C:\Program Files\Unity\Hub\Editor\6000.4.6f1\Editor\Unity.exe' `
@@ -114,16 +114,18 @@ The validation project should mark both packages testable when running package t
 }
 ```
 
-## Future CI/CD Shape
+## CI/CD Shape
 
-If this becomes a published package, the likely CI/CD flow is:
+Current CI validates the package, but release publishing is still tag-based Git UPM consumption. There is no scoped-registry publish step yet.
 
-1. Run Unity PlayMode package tests against a validation project.
-2. Pack or release by tagging the repository.
+1. Run Unity PlayMode package tests against a generated validation project.
+2. Release by tagging the repository.
 3. Consume packages through Git tags using `?path=/UnityPackage#tag`.
-4. Optionally publish to OpenUPM or a private scoped registry.
+4. Optionally add OpenUPM or private scoped-registry publishing later.
 
-Until that exists, do not assume package publication happens automatically. Treat Git path installs as the supported distribution mechanism.
+The GitHub Actions workflow requires Unity activation secrets: `UNITY_LICENSE`, `UNITY_EMAIL`, and `UNITY_PASSWORD`.
+
+Treat Git path installs as the supported distribution mechanism.
 
 ---
 
